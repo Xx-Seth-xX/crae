@@ -1,5 +1,5 @@
 # Quickstart
 ```sh
 	$make 
-	$./crae
+	$./crae <word>
 ```

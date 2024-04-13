@@ -58,6 +58,7 @@ SBuilder sb_from_sv(SView sv) {
   SBuilder sb = {};
   sb.cap = sv.len * 2;
   sb.content.data = myalloc(sizeof(char) * sb.cap);
+  sb.content.len = sv.len;
   memcpy(sb.content.data, sv.data, sv.len);
   return sb;
 }
@@ -76,12 +77,12 @@ void sb_append(SBuilder *sb, SView sv) {
   sb->content.len += sv.len;
 }
 
-const char *sb_to_owned_string(SBuilder sb) {
+char *sb_to_owned_string(SBuilder sb) {
   char *str = myalloc(sb.content.len * sizeof(char));
   memcpy(str, sb.content.data, sb.content.len);
   return str;
 }
-const char *sb_to_string(SBuilder sb) {
+char *sb_to_string(SBuilder sb) {
   sb.content.data[sb.content.len] = '\0';
   char *str = sb.content.data;
   return str;
@@ -207,6 +208,7 @@ int get_sv_surrounded_by(SView sv, SView *out_sv, const char *begin_str,
   return -1;
 }
 
+// TODO: The definiton part of the webpage is surrounded by <div id = "resultados"
 int get_next_definition(Lexer *l, SBuilder *sb) {
   // const char *mstr = "<p class=\"j";
   // const char *endmstr = "</p>";
@@ -261,8 +263,20 @@ int get_next_definition(Lexer *l, SBuilder *sb) {
   return 0;
 }
 
-int main(void) {
-  size_t nbread = get_webpage("https://dle.rae.es/perro");
+int main(int argc, char **argv) {
+  // Right now we assume the first arg is the word to search
+  if (argc < 2) {
+    fprintf(stderr, "You have to provide a word\n");
+    exit(1);
+  }
+  char* word = argv[1];
+  char* base_url = "https://dle.rae.es/";
+  SBuilder url = sb_from_sv(sv_from_str(base_url));
+  sb_append(&url, sv_from_str(word));
+  printf("Downloading from: `%s`\n", sb_to_string(url));
+  size_t nbread = get_webpage(sb_to_string(url));
+  printf("Succesfully downloaded\n");
+  free(url.content.data);
   Lexer l = {0};
   l.pos = 0;
   l.content = (SView){
