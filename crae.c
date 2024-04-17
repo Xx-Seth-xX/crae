@@ -10,6 +10,9 @@
 #define READ_END 0
 #define WRITE_END 1
 
+#define CRAE_LOG "LOG: "
+#define CRAE_ERR "ERROR: "
+
 #define array_sizeof(arr) ((sizeof((arr))) / (sizeof((arr)[0])))
 
 char buffer[1024 * 1024 * 20];
@@ -273,9 +276,9 @@ int main(int argc, char **argv) {
   char* base_url = "https://dle.rae.es/";
   SBuilder url = sb_from_sv(sv_from_str(base_url));
   sb_append(&url, sv_from_str(word));
-  printf("Downloading from: `%s`\n", sb_to_string(url));
+  printf(CRAE_LOG"Downloading from: `%s`\n", sb_to_string(url));
   size_t nbread = get_webpage(sb_to_string(url));
-  printf("Succesfully downloaded\n");
+  printf(CRAE_LOG"Succesfully downloaded\n");
   free(url.content.data);
   Lexer l = {0};
   l.pos = 0;
@@ -285,12 +288,14 @@ int main(int argc, char **argv) {
   };
   SBuilder sb = sb_with_cap(10 * 1024);
 
-  int counter = 1;
+  int counter = 0;
   while (get_next_definition(&l, &sb) != -1) {
     // printf("%.*s", (int)sv.len, sv.data);
     printf("Acepción:\n\t%s\n", sb_to_string(sb));
     ++counter;
   }
+  if (counter == 0)
+    printf(CRAE_ERR"Couldn't find any defition for word: `%s`\n", word);
 
   free(sb.content.data);
   return 0;
