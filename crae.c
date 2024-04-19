@@ -272,8 +272,8 @@ int main(int argc, char **argv) {
     fprintf(stderr, "You have to provide a word\n");
     exit(1);
   }
-  char* word = argv[1];
-  char* base_url = "https://dle.rae.es/";
+  char *word = argv[1];
+  char *base_url = "https://dle.rae.es/";
   SBuilder url = sb_from_sv(sv_from_str(base_url));
   sb_append(&url, sv_from_str(word));
   printf(CRAE_LOG"Downloading from: `%s`\n", sb_to_string(url));
