@@ -252,12 +252,12 @@ int get_next_definition(Lexer *l, SBuilder *sb) {
   sb->content.len = 0;
   for (size_t i = 0; i < strlen(partially_parsed); ++i) {
     char c = buff[i];
-    const char *sin = "Sin.:";
-    const char *used = "U.";
-    if (memcmp(buff + i, sin, strlen(sin)) == 0 ||
-        memcmp(buff + i, used, strlen(used)) == 0) {
-      sb_pushc(sb, '\n');
-      sb_pushc(sb, '\t');
+    const char *delms[] = {"Sin.:", "Ant.:", "U."};
+    for (size_t deli = 0; deli < array_sizeof(delms); ++deli) {
+      if (memcmp(buff + i, delms[deli], strlen(delms[deli])) == 0) {
+        sb_pushc(sb, '\n');
+        sb_pushc(sb, '\t');
+      }
     }
     sb_pushc(sb, c);
   }
